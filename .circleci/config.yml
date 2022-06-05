@@ -15,7 +15,7 @@ jobs:
       - run:
           name: Run playbook and configure server
           command: |
-            ansible-playbook main-remote -i inventory.txt
+            ansible-playbook main-remote.yml -i inventory.txt
   # create_infrastructure: 
   #     docker:
   #       - image: amazon/aws-cli
