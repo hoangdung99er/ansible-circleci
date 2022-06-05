@@ -1,21 +1,6 @@
 version: 2.1
 # Use a package of configuration called an orb.
 jobs:
-  configure_infrastructure:
-    docker:
-      - image: python:3.7-alpine3.11
-    steps:
-      - checkout
-      - add_ssh_keys:
-          fingerprints: ["d2:7a:74:92:78:47:4f:08:11:c8:bd:ba:a9:96:8c:58"]
-      - run:
-          name: Install ansible
-          command: |
-            apk add --update ansible
-      - run:
-          name: Run playbook and configure server
-          command: |
-            ansible-playbook main-remote.yml -i inventory.txt --private-key primary-key.pem
   # create_infrastructure: 
   #     docker:
   #       - image: amazon/aws-cli
@@ -28,10 +13,44 @@ jobs:
   #               --template-file template.yml \
   #               --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
   #               --region us-east-1
+  # configure_infrastructure:
+  #   docker:
+  #     - image: python:3.7-alpine3.11
+  #   steps:
+  #     - checkout
+  #     - add_ssh_keys:
+  #         fingerprints: ["d2:7a:74:92:78:47:4f:08:11:c8:bd:ba:a9:96:8c:58"]
+  #     - run:
+  #         name: Install ansible
+  #         command: |
+  #           apk add --update ansible
+  #     - run:
+  #         name: Run playbook and configure server
+  #         command: |
+  #           ansible-playbook main-remote.yml -i inventory.txt --private-key primary-key.pem
+  smoke_test:
+    docker:
+      - image: alpine:latest
+    steps:
+      - run:
+          name: Install curl
+          command: |
+            apk add --update curl
+      - run:
+          name: smoke test
+          command: |
+            URL="https://blog.udacity.com/"
+            if curl -s --head ${URL}
+            then
+              return 0
+            else 
+              return 1
+            fi
 # Sequential workflow
 workflows:
   # Name the workflow
   myWorkflow:
     jobs:
       # - create_infrastructure
-      - configure_infrastructure
+      # - configure_infrastructure
+      - smoke_test
